@@ -577,7 +577,7 @@ class Laser_sniper:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
         if distance_to_target < 250:
             self.pos = [self.pos[0] - cos(self.direction) * 3 * difficulty, self.pos[1] - sin(self.direction) * 3 * difficulty]
@@ -589,13 +589,13 @@ class Laser_sniper:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
 
         if self.moving == True:
             aim_offset = random.uniform(-25 * pi / 180, 25 * pi / 180)
         else:
-            aim_offset = random.uniform(-2 * pi / 180, 2 * pi / 180)
+            aim_offset = random.uniform(-1 * pi / 180, 1 * pi / 180)
         self.direction += aim_offset
         self.reload += 1
         if self.reload >= 120 / difficulty:
@@ -639,7 +639,7 @@ class Laser_gunner:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
         if distance_to_target < 150:
             self.pos = [self.pos[0] - cos(self.direction) * 3 * difficulty, self.pos[1] - sin(self.direction) * 3 * difficulty]
@@ -651,11 +651,11 @@ class Laser_gunner:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
 
         if self.moving == False:
-            aim_offset = random.uniform(-1 * pi / 180, 1 * pi / 180)
+            aim_offset = random.uniform(-2 * pi / 180, 2 * pi / 180)
             self.reload += 1
             self.direction += aim_offset
             if self.reload >= 1:
@@ -701,7 +701,7 @@ class Rifleman:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
         if distance_to_target < 300:
             self.pos = [self.pos[0] - cos(self.direction) * 3 * difficulty, self.pos[1] - sin(self.direction) * 3 * difficulty]
@@ -713,7 +713,7 @@ class Rifleman:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
 
         if self.moving == True:
@@ -776,7 +776,7 @@ class Machine_gunner:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
         if distance_to_target < 200:
             self.pos = [self.pos[0] - cos(self.direction) * 3 * difficulty, self.pos[1] - sin(self.direction) * 3 * difficulty]
@@ -788,7 +788,7 @@ class Machine_gunner:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
 
         if self.moving == True:
@@ -840,7 +840,7 @@ class Rocket_launcher:
         distance_to_target = hypot(self.pos[0] - target[0], self.pos[1] - target[1])
         self.direction = atan2(target[1] - self.pos[1], target[0] - self.pos[0])
         if distance_to_target > 750:
-            self.pos = [self.pos[0] + cos(self.direction) * 3 * difficulty, self.pos[1] + sin(self.direction) * 3 * difficulty]
+            self.pos = [self.pos[0] + cos(self.direction) * 2 * difficulty, self.pos[1] + sin(self.direction) * 2 * difficulty]
             if self.pos[0] < 25:
                 self.pos[0] = 25
             if self.pos[0] > width - 25:
@@ -849,10 +849,10 @@ class Rocket_launcher:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
         if distance_to_target < 250:
-            self.pos = [self.pos[0] - cos(self.direction) * 3 * difficulty, self.pos[1] - sin(self.direction) * 3 * difficulty]
+            self.pos = [self.pos[0] - cos(self.direction) * 2 * difficulty, self.pos[1] - sin(self.direction) * 2 * difficulty]
             if self.pos[0] < 25:
                 self.pos[0] = 25
             if self.pos[0] > width - 25:
@@ -861,7 +861,7 @@ class Rocket_launcher:
                 self.pos[1] = 25
             if self.pos[1] > height - 25:
                 self.pos[1] = height - 25
-            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 2:
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
                 self.moving = True
 
         self.reload += 1
@@ -1019,12 +1019,12 @@ class Point_defence:
             if self.timer >= 0:
                 if self.target == "player":
                     self.direction = atan2(player_pos[1] - self.pos[1], player_pos[0] - self.pos[0])
-                    if hypot(player_pos[0] - self.pos[0], player_pos[1] - self.pos[1]) <= 500:
-                        pd_lasers.append(PD_laser(Rotate_clockwise([[self.pos[0] + 35, self.pos[1]]], self.pos, self.direction)[0], [player_pos[0], player_pos[1]], 30 / 60, self.team))
+                    if hypot(player_pos[0] - self.pos[0], player_pos[1] - self.pos[1]) <= 250:
+                        pd_lasers.append(PD_laser(Rotate_clockwise([[self.pos[0] + 35, self.pos[1]]], self.pos, self.direction)[0], [player_pos[0] + cos(self.direction) * 10000, player_pos[1] + sin(self.direction) * 10000], 30 / 60, self.team))
                 else:
                     self.direction = atan2(self.target.pos[1] - self.pos[1], self.target.pos[0] - self.pos[0])
-                    if hypot(self.target.pos[0] - self.pos[0], self.target.pos[1] - self.pos[1]) <= 500:
-                        pd_lasers.append(PD_laser(Rotate_clockwise([[self.pos[0] + 35, self.pos[1]]], self.pos, self.direction)[0], [self.target.pos[0], self.target.pos[1]], 30 / 60, self.team))
+                    if hypot(self.target.pos[0] - self.pos[0], self.target.pos[1] - self.pos[1]) <= 250:
+                        pd_lasers.append(PD_laser(Rotate_clockwise([[self.pos[0] + 35, self.pos[1]]], self.pos, self.direction)[0], [self.target.pos[0] + cos(self.direction) * 10000, self.target.pos[1] + sin(self.direction) * 10000], 30 / 60, self.team))
     def display(self):
         if self.team == "red":
             colour = (255, 0, 0)
@@ -1044,7 +1044,7 @@ class Point_defence:
         pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0], self.pos[1] + 3], [self.pos[0], self.pos[1] - 3], [self.pos[0] + 20, self.pos[1] - 3], [self.pos[0] + 20, self.pos[1] + 3]], self.pos, pi / 2), 3)
         pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0], self.pos[1] + 3], [self.pos[0], self.pos[1] - 3], [self.pos[0] + 20, self.pos[1] - 3], [self.pos[0] + 20, self.pos[1] + 3]], self.pos, 11 * pi / 6), 3)
         pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0], self.pos[1] + 3], [self.pos[0], self.pos[1] - 3], [self.pos[0] + 20, self.pos[1] - 3], [self.pos[0] + 20, self.pos[1] + 3]], self.pos, 7 * pi / 6), 3)
-        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0], self.pos[1] + 5], [self.pos[0], self.pos[1] - 5], [self.pos[0] + 35, self.pos[1] - 5], [self.pos[0] + 35, self.pos[1] + 5]], self.pos, self.direction), 3)
+        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0], self.pos[1] + 2], [self.pos[0], self.pos[1] - 2], [self.pos[0] + 35, self.pos[1] - 2], [self.pos[0] + 35, self.pos[1] + 2]], self.pos, self.direction), 3)
         pygame.draw.circle(window, colour, [int(self.pos[0]), int(self.pos[1])], 15)
         pygame.draw.circle(window, (0, 0, 0), [int(self.pos[0]), int(self.pos[1])], 15, 3)
 
@@ -1240,7 +1240,7 @@ while True:
 #-------------------------------------------------------------------Difficulty selection-------------------------------------------------------------------
 #Each difficulty is assigned a value.  When a difficulty is selected, then enemy health, enemy damage, and game speed are multiplied by this value
     if action == "Difficulty":
-        buttons = [Button([width / 2 - 250, height / 3, 500, 75], "Easiest", regular_font), Button([width / 2 - 250, height / 3 + 100, 500, 75], "Easy", regular_font), Button([width / 2 - 250, height / 3 + 200, 500, 75], "Normal", regular_font), Button([0, 0, 100, 50], "Menu", small_font)]
+        buttons = [Button([width / 2 - 250, height / 3, 500, 75], "Easiest", regular_font), Button([width / 2 - 250, height / 3 + 100, 500, 75], "Easy", regular_font), Button([width / 2 - 250, height / 3 + 200, 500, 75], "Normal", regular_font), Button([width / 2 - 250, height / 3 + 300, 500, 75], "Difficult", regular_font), Button([0, 0, 100, 50], "Menu", small_font)]
         selected_button = None
         mouse_down = False
         while action == "Difficulty":
@@ -1290,6 +1290,13 @@ while True:
                             buttons[3].pressed = False
                             if selected_button != None:
                                 if selected_button == buttons[3]:
+                                    difficulty = 2
+                                    money = 100
+                                    action = "Play game"
+                        elif buttons[4].rect[0] <= mouse_pos[0] <= buttons[4].rect[0] + buttons[4].rect[2] and buttons[4].rect[1] <= mouse_pos[1] <= buttons[4].rect[1] + buttons[4].rect[3]:
+                            buttons[4].pressed = False
+                            if selected_button != None:
+                                if selected_button == buttons[4]:
                                     action = "Menu"
                         else:
                             selected_button = None
@@ -1804,7 +1811,7 @@ while True:
 #Point defence turrets
             for turret in turrets:
                 if type(turret) == Point_defence:
-                    if turret.target == None or (not turret.target in potential_targets[1] and not turret.target in potential_targets[2] and not turret.target in potential_targets[3][0] and not turret.target in potential_targets[3][1]) or hypot(turret.target.pos[0] - turret.pos[0], turret.target.pos[1] - turret.pos[1]) > 500 or turret.target.team == turret.team:
+                    if turret.target == None or (not turret.target in potential_targets[1] and not turret.target in potential_targets[2] and not turret.target in potential_targets[3][0] and not turret.target in potential_targets[3][1]) or hypot(turret.target.pos[0] - turret.pos[0], turret.target.pos[1] - turret.pos[1]) > 250 or turret.target.team == turret.team:
                         closest_target = None
                         turret.target = None
                         if player_team != turret.team:

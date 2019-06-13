@@ -894,7 +894,7 @@ class Bullet:
         self.damage = damage
         self.team = team
         self.last_pos = pos
-        self.health = 2
+        self.health = 5 * difficulty
     def move(self):
         self.last_pos = [self.pos[0], self.pos[1]]
         self.pos[0] += cos(self.direction) * self.speed
@@ -953,7 +953,7 @@ class Rocket:
         self.team = team
         self.perimeter = Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 5], [self.pos[0] - 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 15, self.pos[1]], [self.pos[0] + 10, self.pos[1] - 5]], self.pos, self.direction)
         self.explode = False
-        self.health = 10
+        self.health = 25 * difficulty
     def move(self):
         self.pos[0] += cos(self.direction) * self.speed
         self.pos[1] += sin(self.direction) * self.speed
@@ -1006,10 +1006,10 @@ class Mine:
 
 #Point defence laser that shoots down projectiles
 class Point_defence:
-    def __init__(self, pos, direction, team):
+    def __init__(self, pos, team):
         self.pos = pos
-        self.direction = direction
         self.team = team
+        self.direction = 0
         self.health = 50
         self.timer = -450
         self.target = None
@@ -1125,6 +1125,7 @@ weapon_1_key = K_1
 weapon_2_key = K_2
 health_pack_key = K_e
 mine_key = K_q
+turret_key = K_f
 
 pause_game_key = K_p
 
@@ -1155,8 +1156,8 @@ while True:
         lightsaber_damage = 5
         shield_angle = 45
         health_packs = 0
-        trip_mines = 10
-        pd_turrets = 10
+        trip_mines = 0
+        pd_turrets = 0
 
 #Other
         wave = 1
@@ -1402,8 +1403,11 @@ while True:
                     if event.key == pause_game_key:
                         action = "Pause"
                     if event.key == mine_key and trip_mines > 0:
-                        turrets.append(Point_defence([player_pos[0], player_pos[1]], 0, player_team))
+                        mines.append(Mine([player_pos[0], player_pos[1]], player_team))
                         trip_mines -= 1
+                    if event.key == turret_key and pd_turrets > 0:
+                        turrets.append(Point_defence([player_pos[0], player_pos[1]], player_team))
+                        pd_turrets -= 1
                     if event.key == health_pack_key and health_packs > 0:
                         player_health += 50
                         if player_health > player_maxhealth:
@@ -2111,6 +2115,9 @@ while True:
         for i in range(12):
             potential_items.append("Trip mine")
 
+        for i in range(12):
+            potential_items.append("PD turret")
+
         items = []
         for i in range(12):
             item = random.choice(potential_items)
@@ -2177,6 +2184,8 @@ while True:
                                             health_packs += 1
                                         if buttons[selected_item].text == "Trip mine":
                                             trip_mines += 1
+                                        if buttons[selected_item].text == "PD turret":
+                                            pd_turrets += 1
                                         buttons.remove(buttons[selected_item])
                                         selected_item = None
                                         if infinite_money == False:
@@ -2217,7 +2226,7 @@ while True:
                         colour = (0, 128, 0)
                     else:
                         colour = (255, 0, 0)
-                    Draw_text(window, colour, small_font, [width / 2, 2 * height / 3], "Heals up to 50 health per use.")
+                    Draw_text(window, colour, small_font, [width / 2, 2 * height / 3], "Heals up to 50 health when used.")
                 if buttons[selected_item].text == "Trip mine":
                     item_cost = 30
                     if money >= item_cost or infinite_money == True:
@@ -2225,7 +2234,15 @@ while True:
                     else:
                         colour = (255, 0, 0)
                     Draw_text(window, colour, small_font, [width / 2, 2 * height / 3], "Sets up for 5 seconds, then blows up any enemies who get too close.")
-                Draw_text(window, colour, small_font, [width / 2, 2 * height / 3 + 50], "Cost: " + str(item_cost))
+                if buttons[selected_item].text == "PD turret":
+                    item_cost = 50
+                    if money >= item_cost or infinite_money == True:
+                        colour = (0, 128, 0)
+                    else:
+                        colour = (255, 0, 0)
+                    Draw_text(window, colour, small_font, [width / 2, 2 * height / 3], "Point defence turret.  Sets up for 7.5 seconds, then shoots down projectiles and")
+                    Draw_text(window, colour, small_font, [width / 2, 2 * height / 3 + 25], "enemies within range.")
+                Draw_text(window, colour, small_font, [width / 2, 2 * height / 3 + 75], "Cost: " + str(item_cost))
 
             for button in buttons:
                 if selected_button == button and mouse_down == True:

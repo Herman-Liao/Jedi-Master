@@ -894,7 +894,7 @@ class Bullet:
         self.damage = damage
         self.team = team
         self.last_pos = pos
-        self.health = 5 * difficulty
+        self.health = 3 * difficulty
     def move(self):
         self.last_pos = [self.pos[0], self.pos[1]]
         self.pos[0] += cos(self.direction) * self.speed
@@ -953,7 +953,7 @@ class Rocket:
         self.team = team
         self.perimeter = Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 5], [self.pos[0] - 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 15, self.pos[1]], [self.pos[0] + 10, self.pos[1] - 5]], self.pos, self.direction)
         self.explode = False
-        self.health = 25 * difficulty
+        self.health = 15 * difficulty
     def move(self):
         self.pos[0] += cos(self.direction) * self.speed
         self.pos[1] += sin(self.direction) * self.speed
@@ -1102,7 +1102,9 @@ mario_loop_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\
 star_wars_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\Star Wars Imperial March.ogg")
 tetris_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\Tetris Theme Song.ogg")
 william_tell_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\William Tell Overture Finale.ogg")
-all_music = [mario_loop_music, star_wars_music, tetris_music, william_tell_music]
+lozoot_gerudo_introduction_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\LoZOoT Gerudo Valley Introduction.ogg")
+lozoot_gerudo_loop_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\LoZOoT Gerudo Valley Loop.ogg")
+all_music = [mario_loop_music, star_wars_music, tetris_music, william_tell_music, lozoot_gerudo_loop_music]
 music_channel = pygame.mixer.Channel(0)
 
 mario_death_sound = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\Mario Theme Song Death.ogg")
@@ -1173,6 +1175,8 @@ while True:
             music = mario_loop_music
         if music == mario_loop_music:
             music_channel.play(mario_introduction_music)
+        elif music == lozoot_gerudo_loop_music:
+            music_channel.play(lozoot_gerudo_introduction_music)
         else:
             music_channel.play(music)
         music_channel.set_volume(music_volume)
@@ -1341,6 +1345,8 @@ while True:
             music = star_wars_music
         if music == mario_loop_music:
             music_channel.play(mario_introduction_music)
+        elif music == lozoot_gerudo_loop_music:
+            music_channel.play(lozoot_gerudo_introduction_music)
         else:
             music_channel.play(music, -1)
         music_channel.set_volume(music_volume)
@@ -1362,6 +1368,9 @@ while True:
             mouse_pos = pygame.mouse.get_pos()
             if music == mario_loop_music and music_channel.get_busy() == False:
                 music_channel.play(mario_loop_music, -1)
+                music_channel.set_volume(music_volume)
+            if music == lozoot_gerudo_loop_music and music_channel.get_busy() == False:
+                music_channel.play(lozoot_gerudo_loop_music, -1)
                 music_channel.set_volume(music_volume)
             timer += difficulty
             enemy_add_timer += difficulty
@@ -1729,19 +1738,35 @@ while True:
 
 #Laser and enemy collision detection
             for laser in deflects:
+                intersecting_enemies = []
+                closer_intersections = []
                 for enemy in enemies:
                     enemy_laser_intersections = Do_line_and_circle_intersect([enemy.pos, 25], laser.start_pos, laser.end_pos, False)
                     if enemy_laser_intersections != False:
+                        intersecting_enemies.append(enemy)
                         if laser.penetrate == False:
                             if len(enemy_laser_intersections) == 2:
                                 if hypot(enemy_laser_intersections[0][0] - laser.start_pos[0], enemy_laser_intersections[0][1] - laser.start_pos[1]) <= hypot(enemy_laser_intersections[1][0] - laser.start_pos[0], enemy_laser_intersections[1][1] - laser.start_pos[1]):
-                                    closer_intersection = enemy_laser_intersections[0]
+                                    closer_intersections.append(enemy_laser_intersections[0])
                                 else:
-                                    closer_intersection = enemy_laser_intersections[1]
+                                    closer_intersections.append(enemy_laser_intersections[1])
                             elif len(enemy_laser_intersections) == 1:
-                                closer_intersection = enemy_laser_intersections[0]
-                            laser.end_pos = closer_intersection
-                        enemy.health -= laser.damage
+                                closer_intersections.append(enemy_laser_intersections[0])
+                        else:
+                            enemy.health -= laser.damage
+                if laser.penetrate == False and closer_intersections != []:
+                    closest_intersection = None
+                    chosen_enemy = None
+                    for intersection_number, intersection in enumerate(closer_intersections):
+                        if closest_intersection != None:
+                            if hypot(intersection[0] - laser.start_pos[0], intersection[1] - laser.start_pos[1]) <= hypot(closest_intersection[0] - laser.start_pos[0], closest_intersection[1] - laser.start_pos[1]):
+                                closest_intersection = intersection
+                                chosen_enemy = intersecting_enemies[intersection_number]
+                        else:
+                            closest_intersection = intersection
+                            chosen_enemy = intersecting_enemies[intersection_number]
+                    laser.end_pos = closest_intersection
+                    chosen_enemy.health -= 5
 
 #Rocket movement, collision detection and property updates
             for rocket in rockets[:]:
@@ -1853,9 +1878,12 @@ while True:
 #Point defence lasers
             for laser in pd_lasers:
                 laser_direction = atan2(laser.end_pos[1] - laser.start_pos[1], laser.end_pos[0] - laser.start_pos[0])
+                deflection_intersection = None
+                player_intersection = None
+                enemy_intersections = []
+                bullet_intersections = []
+                rocket_intersections = []
                 if laser.team != player_team:
-                    deflection_intersection = None
-                    player_intersection = None
                     if player_weapon == 1:
                         if Do_lines_intersect(laser_direction, laser.start_pos, lightsaber_direction, player_hand) == True:
                             if hypot(laser.start_pos[0] - player_hand[0], laser.start_pos[1] - player_hand[1]) < hypot(laser.start_pos[0] - lightsaber_end[0], laser.start_pos[1] - lightsaber_end[1]):
@@ -1896,29 +1924,7 @@ while True:
                         else:
                             player_intersection = laser_player_intersections[0]
 
-                    if deflection_intersection != None and player_intersection != None:
-                        if hypot(laser.start_pos[0] - deflection_intersection[0], laser.start_pos[1] - deflection_intersection[1]) <= hypot(laser.start_pos[0] - player_intersection[0], laser.start_pos[1] - player_intersection[1]):
-                            if player_weapon == 1:
-                                laser.end_pos = deflection_intersection
-                                deflects.append(PD_laser(laser.end_pos, [laser.end_pos[0] + cos(Deflect(laser_direction, lightsaber_direction) + pi) * 10000, laser.end_pos[1] + sin(Deflect(laser_direction, lightsaber_direction) + pi) * 10000], laser.damage, player_team))
-                            elif player_weapon == 2:
-                                shield_direction = atan2(-player_pos[0] + closer_intersection[0], player_pos[1] - closer_intersection[1])
-                                laser.end_pos = deflection_intersection
-                                deflects.append(PD_laser(laser.end_pos, [laser.end_pos[0] + cos(Deflect(laser_direction, shield_direction) + pi) * 10000, laser.end_pos[1] + sin(Deflect(laser_direction, shield_direction) + pi) * 10000], laser.damage, player_team))
-                        else:
-                            player_health -= laser.damage
-                            laser.end_pos = player_intersection
-                    elif deflection_intersection != None:
-                        if player_weapon == 1:
-                            laser.end_pos = deflection_intersection
-                            deflects.append(PD_laser(laser.end_pos, [laser.end_pos[0] + cos(Deflect(laser_direction, lightsaber_direction) + pi) * 10000, laser.end_pos[1] + sin(Deflect(laser_direction, lightsaber_direction) + pi) * 10000], laser.damage, player_team))
-                        elif player_weapon == 2:
-                            shield_direction = atan2(-player_pos[0] + closer_intersection[0], player_pos[1] - closer_intersection[1])
-                            laser.end_pos = deflection_intersection
-                            deflects.append(PD_laser(laser.end_pos, [laser.end_pos[0] + cos(Deflect(laser_direction, shield_direction) + pi) * 10000, laser.end_pos[1] + sin(Deflect(laser_direction, shield_direction) + pi) * 10000],laser.damage, player_team))
-                    elif player_intersection != None:
-                        player_health -= laser.damage
-                        laser.end_pos = player_intersection
+                    
                 
                 for enemy in enemies:
                     if enemy.team != laser.team:
@@ -1931,8 +1937,7 @@ while True:
                                     closer_intersection = enemy_laser_intersections[1]
                             elif len(enemy_laser_intersections) == 1:
                                 closer_intersection = enemy_laser_intersections[0]
-                            laser.end_pos = closer_intersection
-                            enemy.health -= laser.damage
+                            enemy_intersections.append([closer_intersection, enemy])
 
                 for bullet in bullets:
                     if bullet.team != laser.team:
@@ -1945,12 +1950,12 @@ while True:
                                     closer_intersection = bullet_laser_intersections[1]
                             elif len(bullet_laser_intersections) == 1:
                                 closer_intersection = bullet_laser_intersections[0]
-                            laser.end_pos = closer_intersection
-                            bullet.health -= laser.damage
+                            bullet_intersections.append([closer_intersection, bullet])
 
                 for rocket in rockets:
                     damage_rocket = False
                     if rocket.team != laser.team:
+                        rocket_laser_intersections = []
                         for point_number, point in enumerate(rocket.perimeter):
                             if point_number == 4:
                                 line = [point, rocket.perimeter[0]]
@@ -1959,9 +1964,95 @@ while True:
 
                             if Do_lines_intersect(atan2(line[0][1] - line[1][1], line[0][0] - line[1][0]), point, laser_direction, laser.start_pos, [line[0], line[1]]) != False:
                                 if Do_lines_intersect(atan2(line[0][1] - line[1][1], line[0][0] - line[1][0]), point, laser_direction, laser.start_pos, [laser.start_pos, laser.end_pos]) != False:
+                                    rocket_laser_intersections.append(Do_lines_intersect(atan2(line[0][1] - line[1][1], line[0][0] - line[1][0]), point, laser_direction, laser.start_pos))
                                     damage_rocket = True
-                    if damage_rocket == True:
-                        rocket.health -= laser.damage
+                        if damage_rocket == True:
+                            closest_intersection = None
+                            for intersection in rocket_laser_intersections:
+                                if closest_intersection != None:
+                                    if hypot(intersection[0] - laser.start_pos[0], intersection[1] - laser.start_pos[1]) <= hypot(closest_intersection[0] - laser.start_pos[0], closest_intersection[1] - laser.start_pos[1]):
+                                        closest_intersection = intersection
+                                else:
+                                    closest_intersection = intersection
+                            rocket_intersections.append([closest_intersection, rocket])
+
+    #Figure out which intersection is closer to the laser's starting position
+                if deflection_intersection != None or player_intersection != None or enemy_intersections != [] or bullet_intersections != [] or rocket_intersections != []:
+                    closest_intersection = None
+                    closest_enemy_intersection = None
+                    closest_bullet_intersection = None
+                    closest_rocket_intersection = None
+                    for intersection in enemy_intersections:
+                        if closest_enemy_intersection != None:
+                            if hypot(intersection[0][0] - laser.start_pos[0], intersection[0][1] - laser.start_pos[1]) <= hypot(closest_enemy_intersection[0] - laser.start_pos[0], closest_enemy_intersection[1] - laser.start_pos[1]):
+                                closest_enemy_intersection = intersection[0]
+                        else:
+                            closest_enemy_intersection = intersection[0]
+                    for intersection in bullet_intersections:
+                        if closest_bullet_intersection != None:
+                            if hypot(intersection[0][0] - laser.start_pos[0], intersection[0][1] - laser.start_pos[1]) <= hypot(closest_bullet_intersection[0] - laser.start_pos[0], closest_bullet_intersection[1] - laser.start_pos[1]):
+                                closest_bullet_intersection = intersection[0]
+                        else:
+                            closest_bullet_intersection = intersection[0]
+                    for intersection in rocket_intersections:
+                        if closest_rocket_intersection != None:
+                            if hypot(intersection[0][0] - laser.start_pos[0], intersection[0][1] - laser.start_pos[1]) <= hypot(closest_rocket_intersection[0] - laser.start_pos[0], closest_rocket_intersection[1] - laser.start_pos[1]):
+                                closest_rocket_intersection = intersection[0]
+                        else:
+                            closest_rocket_intersection = intersection[0]
+
+                    if deflection_intersection != None and player_intersection != None:
+                        if hypot(laser.start_pos[0] - deflection_intersection[0], laser.start_pos[1] - deflection_intersection[1]) <= hypot(laser.start_pos[0] - player_intersection[0], laser.start_pos[1] - player_intersection[1]):
+                            closest_intersection = deflection_intersection
+                        else:
+                            closest_intersection = player_intersection
+                    elif deflection_intersection != None:
+                        closest_intersection = deflection_intersection
+                    elif player_intersection != None:
+                        closest_intersection = player_intersection
+                    if closest_enemy_intersection != None:
+                        if closest_intersection != None:
+                            if hypot(laser.start_pos[0] - closest_enemy_intersection[0], laser.start_pos[1] - closest_enemy_intersection[1]) <= hypot(laser.start_pos[0] - closest_intersection[0], laser.start_pos[1] - closest_intersection[1]):
+                                closest_intersection = closest_enemy_intersection
+                        else:
+                            closest_intersection = closest_enemy_intersection
+                    if closest_bullet_intersection != None:
+                        if closest_intersection != None:
+                            if hypot(laser.start_pos[0] - closest_bullet_intersection[0], laser.start_pos[1] - closest_bullet_intersection[1]) <= hypot(laser.start_pos[0] - closest_intersection[0], laser.start_pos[1] - closest_intersection[1]):
+                                closest_intersection = closest_bullet_intersection
+                        else:
+                            closest_intersection = closest_bullet_intersection
+                    if closest_rocket_intersection != None:
+                        if closest_intersection != None:
+                            if hypot(laser.start_pos[0] - closest_rocket_intersection[0], laser.start_pos[1] - closest_rocket_intersection[1]) <= hypot(laser.start_pos[0] - closest_intersection[0], laser.start_pos[1] - closest_intersection[1]):
+                                closest_intersection = closest_rocket_intersection
+                        else:
+                            closest_intersection = closest_rocket_intersection
+                    if closest_intersection != None:
+                        if closest_intersection == deflection_intersection:
+                            if player_weapon == 1:
+                                deflects.append(Laser(laser.end_pos, [laser.end_pos[0] + cos(Deflect(laser_direction, lightsaber_direction) + pi) * 10000, laser.end_pos[1] + sin(Deflect(laser_direction, lightsaber_direction) + pi) * 10000], 1, laser.damage, laser.penetrate, player_team))
+                            elif player_weapon == 2:
+                                shield_direction = atan2(-player_pos[0] + closer_intersection[0], player_pos[1] - closer_intersection[1])
+                                deflects.append(Laser(laser.end_pos, [laser.end_pos[0] + cos(Deflect(laser_direction, shield_direction) + pi) * 10000, laser.end_pos[1] + sin(Deflect(laser_direction, shield_direction) + pi) * 10000], 1, laser.damage, laser.penetrate, player_team))
+                        if closest_intersection == player_intersection:
+                            player.health -= laser.damage
+                        if closest_intersection == closest_enemy_intersection:
+                            for intersection in enemy_intersections:
+                                if closest_intersection == intersection[0]:
+                                    intersection[1].health -= laser.damage
+                                    break
+                        if closest_intersection == closest_bullet_intersection:
+                            for intersection in bullet_intersections:
+                                if closest_intersection == intersection[0]:
+                                    intersection[1].health -= laser.damage
+                                    break
+                        if closest_intersection == closest_rocket_intersection:
+                            for intersection in rocket_intersections:
+                                if closest_intersection == intersection[0]:
+                                    intersection[1].health -= laser.damage
+                                    breake
+                        laser.end_pos = closest_intersection
 
 #Explosion collision detection and property updates
             for explosion in explosions[:]:

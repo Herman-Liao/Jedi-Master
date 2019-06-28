@@ -295,10 +295,11 @@ def Settings():
                             if selected_button == buttons[1]:
                                 if new_music_volume == 1:
                                     new_music_volume = 0
-                                    text = "Music will be turned off.  Press back to activate."
+                                    text = "Music is turned off."
                                 else:
                                     new_music_volume = 1
-                                    text = "Music will be turned on.  Press back to activate."
+                                    text = "Music is turned on."
+                                music_channel.set_volume(new_music_volume)
                     if buttons[2].rect[0] <= mouse_pos[0] <= buttons[2].rect[0] + buttons[2].rect[2] and buttons[2].rect[1] <= mouse_pos[1] <= buttons[2].rect[1] + buttons[2].rect[3]:
                         buttons[2].pressed = False
                         if selected_button != None:
@@ -403,6 +404,7 @@ def Cheats():
     new_infinite_money = infinite_money     #"im rich": Grants infinite money
     new_god_mode = god_mode                 #"god mode": Infinite health and damage
     new_music_mix = music_mix               #"mixer.mix": Randomizes music
+    new_infinite_items = infinite_items     #"create out of thin air": Grants infinite items
     new_vision = vision                     #"hyperopia": Draws a large circle around player to obstruct vision nearby vision
                                             #"myopia": Draws a ring and four rectangles around player to obstruct far vision
                                             #"glasses": Makes vision normal
@@ -429,7 +431,7 @@ def Cheats():
                 elif event.key == 13:
                     final_player_input = player_input
                     if final_player_input == "help":
-                        text = ["All cheats:", "\"help\": Lists all cheat codes", "\"wave=#\": Sets the wave number to #", "\"im rich\": Activates infinite money", "\"god mode\": Activates god mode: Infinite player health and damage", "\"mixer.mix\": Randomizes all music", "\"hyperopia\": Gives player hyperopia (can only see far)", "\"myopia\": Gives player myopia (can only see close)", "\"glasses\": Gives player normal vision"]
+                        text = ["All cheats:", "\"help\": Lists all cheat codes", "\"wave=#\": Sets the wave number to #", "\"im rich\": Activates infinite money", "\"god mode\": Activates god mode: Infinite player health and damage", "\"mixer.mix\": Randomizes all music", "\"create out of thin air\": Infinite items", "\"hyperopia\": Gives player hyperopia (can only see far)", "\"myopia\": Gives player myopia (can only see close)", "\"glasses\": Gives player normal vision"]
                     elif final_player_input[0:5] == "wave=":
                         try:
                             new_wave = int(final_player_input[5:])
@@ -457,6 +459,13 @@ def Cheats():
                         else:
                             new_music_mix = False
                             text = ["Music is normal!"]
+                    elif final_player_input == "create out of thin air":
+                        if new_infinite_items == False:
+                            new_infinite_items = True
+                            text = ["You now have infinite items!"]
+                        else:
+                            new_infinite_items = False
+                            text = ["You now have limited items!"]
                     elif final_player_input == "hyperopia":
                         new_vision = "hyperopia"
                         text = ["You now have hyperopia!"]
@@ -485,14 +494,14 @@ def Cheats():
                         buttons[0].pressed = False
                         if selected_button != None:
                             if selected_button == buttons[0]:
-                                return new_infinite_money, new_god_mode, new_music_mix, new_vision, new_wave
+                                return new_infinite_money, new_god_mode, new_music_mix, new_infinite_items, new_vision, new_wave
                     elif buttons[1].rect[0] <= mouse_pos[0] <= buttons[1].rect[0] + buttons[1].rect[2] and buttons[1].rect[1] <= mouse_pos[1] <= buttons[1].rect[1] + buttons[1].rect[3]:
                         buttons[1].pressed = False
                         if selected_button != None:
                             if selected_button == buttons[1]:
                                 final_player_input = player_input
                                 if final_player_input == "help":
-                                    text = ["All cheats:", "\"help\": Lists all cheat codes", "\"wave=#\": Sets the wave number to #", "\"im rich\": Activates infinite money", "\"god mode\": Activates god mode: Infinite player health and damage", "\"mixer.mix\": Randomizes all music", "\"hyperopia\": Gives player hyperopia (can only see far)", "\"myopia\": Gives player myopia (can only see close)", "\"glasses\": Gives player normal vision"]
+                                    text = ["All cheats:", "\"help\": Lists all cheat codes", "\"wave=#\": Sets the wave number to #", "\"im rich\": Activates infinite money", "\"god mode\": Activates god mode: Infinite player health and damage", "\"mixer.mix\": Randomizes all music", "\"create out of thin air\": Infinite items", "\"hyperopia\": Gives player hyperopia (can only see far)", "\"myopia\": Gives player myopia (can only see close)", "\"glasses\": Gives player normal vision"]
                                 elif final_player_input[0:5] == "wave=":
                                     try:
                                         new_wave = int(final_player_input[5:])
@@ -520,6 +529,13 @@ def Cheats():
                                     else:
                                         new_music_mix = False
                                         text = ["Music is normal!"]
+                                elif final_player_input == "create out of thin air":
+                                    if new_infinite_items == False:
+                                        new_infinite_items = True
+                                        text = ["You now have infinite items!"]
+                                    else:
+                                        new_infinite_items = False
+                                        text = ["You now have limited items!"]
                                 elif final_player_input == "hyperopia":
                                     new_vision = "hyperopia"
                                     text = ["You now have hyperopia!"]
@@ -676,13 +692,13 @@ class Laser_gunner:
 
 #A gunman who fires bullets somewhat accurately
 class Rifleman:
-    def __init__(self, pos, direction, health, max_health, fire, team):
+    def __init__(self, pos, direction, health, max_health, team):
         self.pos = pos
         self.direction = direction
         self.health = health * difficulty
         self.max_health = max_health * difficulty
-        self.fire = fire
         self.team = team
+        self.fire = 0
         self.ammunition = 10
         self.reload = 0
         self.moving = False
@@ -751,13 +767,13 @@ class Rifleman:
 
 #A gunman who rapidly fires bullets, but inaccurately
 class Machine_gunner:
-    def __init__(self, pos, direction, health, max_health, fire, team):
+    def __init__(self, pos, direction, health, max_health, team):
         self.pos = pos
         self.direction = direction
         self.health = health * difficulty
         self.max_health = max_health * difficulty
-        self.fire = fire
         self.team = team
+        self.fire = 0
         self.ammunition = 30
         self.reload = 0
         self.moving = False
@@ -869,7 +885,7 @@ class Rocket_launcher:
             aim_offset = random.uniform(-2 * pi / 180, 2 * pi / 180)
             self.direction += aim_offset
             if self.reload >= 300 / difficulty:
-                rockets.append(Rocket([self.pos[0] + cos(self.direction) * 75, self.pos[1] + sin(self.direction) * 75], self.direction, 5, 75, "red"))
+                rockets.append(Rocket([self.pos[0] + cos(self.direction) * 75, self.pos[1] + sin(self.direction) * 75], self.direction, 5, 75, 25, "red"))
                 self.reload = 0
             self.direction -= aim_offset
     def display(self):
@@ -881,6 +897,94 @@ class Rocket_launcher:
             colour = (0, 0, 255)
         pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[int(self.pos[0]), int(self.pos[1] + 7)], [int(self.pos[0]), int(self.pos[1] - 7)], [int(self.pos[0] + 75), int(self.pos[1] - 7)], [int(self.pos[0] + 75), int(self.pos[1] + 7)]], self.pos, self.direction), 3)
         pygame.draw.circle(window, colour, [int(self.pos[0]), int(self.pos[1])], 25)
+        pygame.draw.rect(window, (255, 0, 0), [int(self.pos[0] - 25), int(self.pos[1] - 35), 50, 5])
+        pygame.draw.rect(window, (0, 255, 0), [int(self.pos[0] - 25), int(self.pos[1] - 35), self.health * 50 / self.max_health, 5])
+
+    #Boss enemies
+        #A helicopter that fires bullets and rockets
+class Helicopter:
+    def __init__(self, pos, direction, health, max_health, team):
+        self.pos = pos
+        self.direction = direction
+        self.health = health * difficulty
+        self.max_health = max_health * difficulty
+        self.team = team
+        self.timer = 0
+        self.fire = 0
+        self.rocket_ammunition = 0
+        self.moving = False
+    def move_shoot(self, target):
+        self.moving = False
+        last_pos = [self.pos[0], self.pos[1]]
+        distance_to_target = hypot(self.pos[0] - target[0], self.pos[1] - target[1])
+        self.direction = atan2(target[1] - self.pos[1], target[0] - self.pos[0])
+        if distance_to_target > 500:
+            self.pos = [self.pos[0] + cos(self.direction) * 3 * difficulty, self.pos[1] + sin(self.direction) * 5 * difficulty]
+            if self.pos[0] < 25:
+                self.pos[0] = 25
+            if self.pos[0] > width - 25:
+                self.pos[0] = width - 25
+            if self.pos[1] < 25:
+                self.pos[1] = 25
+            if self.pos[1] > height - 25:
+                self.pos[1] = height - 25
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
+                self.moving = True
+        if distance_to_target < 150:
+            self.pos = [self.pos[0] - cos(self.direction) * 3 * difficulty, self.pos[1] - sin(self.direction) * 5 * difficulty]
+            if self.pos[0] < 25:
+                self.pos[0] = 25
+            if self.pos[0] > width - 25:
+                self.pos[0] = width - 25
+            if self.pos[1] < 25:
+                self.pos[1] = 25
+            if self.pos[1] > height - 25:
+                self.pos[1] = height - 25
+            if hypot(self.pos[0] - last_pos[0], self.pos[1] - last_pos[1]) >= 1:
+                self.moving = True
+
+        self.fire += difficulty
+        if self.fire % 1 + difficulty >= 1:
+            for i in range(int(self.fire % 1 + difficulty)):
+                aim_offset = random.uniform(-7 * pi / 180, 7 * pi / 180)
+                self.direction += aim_offset
+                bullets.append(Bullet([self.pos[0] + cos(self.direction) * 50, self.pos[1] + sin(self.direction) * 50], self.direction, 20, 2 * difficulty, self.team))
+                self.direction -= aim_offset
+##            if sound_effects == True:
+##                gunshot_rapid_sound.play()
+        if self.fire % 15 + difficulty >= 15 and self.fire > 180:
+            if self.fire % 30 + difficulty >= 30:
+                rockets.append(Rocket([self.pos[0] + cos(self.direction + pi / 2) * 35, self.pos[1] + sin(self.direction + pi / 2) * 35], self.direction, 5, 75, 25, "red"))
+            else:
+                rockets.append(Rocket([self.pos[0] + cos(self.direction - pi / 2) * 35, self.pos[1] + sin(self.direction - pi / 2) * 35], self.direction, 5, 75, 25, "red"))
+            if self.fire >= 300 - difficulty:
+                self.fire = 0
+    def display(self):
+        self.timer += difficulty
+        if self.team == "red":
+            colour = (255, 0, 0)
+        if self.team == "green":
+            colour = (0, 255, 0)
+        if self.team == "blue":
+            colour = (0, 0, 255)
+        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[int(self.pos[0]), int(self.pos[1] + 5)], [int(self.pos[0]), int(self.pos[1] - 5)], [int(self.pos[0] + 50), int(self.pos[1] - 5)], [int(self.pos[0] + 50), int(self.pos[1] + 5)]], self.pos, self.direction), 3)
+        if (difficulty < 1 and self.fire % 1 + difficulty >= 1) or (difficulty >= 1 and self.fire % (2 * difficulty) == 0):
+            pygame.draw.line(window, (0, 0, 0), Rotate_clockwise([[int(self.pos[0]), int(self.pos[1] + 2)]], self.pos, self.direction)[0], Rotate_clockwise([[int(self.pos[0] + 50), int(self.pos[1] + 2)]], self.pos, self.direction)[0], 3)
+            pygame.draw.line(window, (0, 0, 0), Rotate_clockwise([[int(self.pos[0]), int(self.pos[1] - 2)]], self.pos, self.direction)[0], Rotate_clockwise([[int(self.pos[0] + 50), int(self.pos[1] - 2)]], self.pos, self.direction)[0], 3)
+        else:
+            pygame.draw.line(window, (0, 0, 0), self.pos, Rotate_clockwise([[int(self.pos[0] + 50), int(self.pos[1])]], self.pos, self.direction)[0], 3)
+        pygame.draw.polygon(window, (128, 128, 128), Rotate_clockwise([[int(self.pos[0] - 72), int(self.pos[1]) + 5], [int(self.pos[0] - 72), int(self.pos[1]) - 5], [int(self.pos[0] - 68), int(self.pos[1]) - 5], [int(self.pos[0] - 68), int(self.pos[1]) + 5]], self.pos, self.direction))
+        pygame.draw.polygon(window, (128, 128, 128), Rotate_clockwise([[int(self.pos[0] - 70 - (20 * abs(7.5 - (self.timer % 15)) / 7.5)), int(self.pos[1] + 3)], [int(self.pos[0] - 70 + (20 * abs(7.5 - (self.timer % 15)) / 7.5)), int(self.pos[1] + 3)], [int(self.pos[0] - 70 + (20 * abs(7.5 - (self.timer % 15)) / 7.5)), int(self.pos[1] + 5)], [int(self.pos[0] - 70 - (20 * abs(7.5 - (self.timer % 15)) / 7.5)), int(self.pos[1] + 5)]], self.pos, self.direction))
+        pygame.draw.polygon(window, colour, Rotate_clockwise([[int(self.pos[0]), int(self.pos[1] + 5)], [int(self.pos[0] - 50), int(self.pos[1] + 5)], [int(self.pos[0] - 50), int(self.pos[1])], [int(self.pos[0] - 75), int(self.pos[1])], [int(self.pos[0] - 75), int(self.pos[1] - 5)], [int(self.pos[0]), int(self.pos[1] - 5)]], self.pos, self.direction))
+        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[int(self.pos[0]), int(self.pos[1] + 5)], [int(self.pos[0] - 50), int(self.pos[1] + 5)], [int(self.pos[0] - 50), int(self.pos[1])], [int(self.pos[0] - 75), int(self.pos[1])], [int(self.pos[0] - 75), int(self.pos[1] - 5)], [int(self.pos[0]), int(self.pos[1] - 5)]], self.pos, self.direction), 3)
+        pygame.draw.polygon(window, colour, Rotate_clockwise([[int(self.pos[0] + 10), int(self.pos[1] + 45)], [int(self.pos[0] - 10), int(self.pos[1] + 45)], [int(self.pos[0] - 10), int(self.pos[1] - 45)], [int(self.pos[0] + 10), int(self.pos[1] - 45)]], self.pos, self.direction))
+        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[int(self.pos[0] + 10), int(self.pos[1] + 45)], [int(self.pos[0] - 10), int(self.pos[1] + 45)], [int(self.pos[0] - 10), int(self.pos[1] - 45)], [int(self.pos[0] + 10), int(self.pos[1] - 45)]], self.pos, self.direction), 3)
+        pygame.draw.circle(window, colour, [int(self.pos[0]), int(self.pos[1])], 25)
+        pygame.draw.circle(window, (0, 0, 0), [int(self.pos[0]), int(self.pos[1])], 25, 3)
+        pygame.draw.polygon(window, (128, 128, 128), Rotate_clockwise([[int(self.pos[0] - 75), int(self.pos[1] - 2)], [int(self.pos[0] - 79), int(self.pos[1] + 2)], [int(self.pos[0] + 75), int(self.pos[1] + 2)], [int(self.pos[0] + 79), int(self.pos[1] - 2)]], self.pos, self.timer * 12 * pi / 180))
+        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[int(self.pos[0] - 75), int(self.pos[1] - 2)], [int(self.pos[0] - 79), int(self.pos[1] + 2)], [int(self.pos[0] + 75), int(self.pos[1] + 2)], [int(self.pos[0] + 79), int(self.pos[1] - 2)]], self.pos, self.timer * 12 * pi / 180), 3)
+        pygame.draw.polygon(window, (128, 128, 128), Rotate_clockwise([[int(self.pos[0] - 75), int(self.pos[1] - 2)], [int(self.pos[0] - 79), int(self.pos[1] + 2)], [int(self.pos[0] + 75), int(self.pos[1] + 2)], [int(self.pos[0] + 79), int(self.pos[1] - 2)]], self.pos, self.timer * 12 * pi / 180 + pi / 2))
+        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[int(self.pos[0] - 75), int(self.pos[1] - 2)], [int(self.pos[0] - 79), int(self.pos[1] + 2)], [int(self.pos[0] + 75), int(self.pos[1] + 2)], [int(self.pos[0] + 79), int(self.pos[1] - 2)]], self.pos, self.timer * 12 * pi / 180 + pi / 2), 3)
         pygame.draw.rect(window, (255, 0, 0), [int(self.pos[0] - 25), int(self.pos[1] - 35), 50, 5])
         pygame.draw.rect(window, (0, 255, 0), [int(self.pos[0] - 25), int(self.pos[1] - 35), self.health * 50 / self.max_health, 5])
 
@@ -945,11 +1049,12 @@ class PD_laser:
 
 #Rocket - cannot be deflected
 class Rocket:
-    def __init__(self, pos, direction, speed, damage, team):
+    def __init__(self, pos, direction, speed, damage, explosion_damage, team):
         self.pos = pos
         self.direction = direction
         self.speed = speed * difficulty
         self.damage = damage
+        self.explosion_damage = explosion_damage
         self.team = team
         self.perimeter = Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 5], [self.pos[0] - 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 15, self.pos[1]], [self.pos[0] + 10, self.pos[1] - 5]], self.pos, self.direction)
         self.explode = False
@@ -958,7 +1063,7 @@ class Rocket:
         self.pos[0] += cos(self.direction) * self.speed
         self.pos[1] += sin(self.direction) * self.speed
         self.direction += random.uniform(-3 * pi / 180, 3 * pi / 180)
-        self.speed += 0.1 * difficulty
+        self.speed += 0.2 * difficulty
         self.perimeter = Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 5], [self.pos[0] - 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 15, self.pos[1]], [self.pos[0] + 10, self.pos[1] - 5]], self.pos, self.direction)
     def display(self):
         if self.team == "red":
@@ -967,12 +1072,38 @@ class Rocket:
             colour = (0, 255, 0)
         elif self.team == "blue":
             colour = (0, 0, 255)
-        pygame.draw.polygon(window, colour, Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 5], [self.pos[0] - 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] - 5]], self.pos, self.direction))
-        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 5], [self.pos[0] - 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] - 5]], self.pos, self.direction), 1)
         pygame.draw.polygon(window, colour, Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 10], [self.pos[0] - 10, self.pos[1] + 10], [self.pos[0], self.pos[1]]], self.pos, self.direction))
         pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 10], [self.pos[0] - 10, self.pos[1] + 10], [self.pos[0] + 5, self.pos[1]]], self.pos, self.direction), 1)
+        pygame.draw.polygon(window, colour, Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 5], [self.pos[0] - 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] - 5]], self.pos, self.direction))
+        pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0] - 10, self.pos[1] - 5], [self.pos[0] - 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 10, self.pos[1] - 5]], self.pos, self.direction), 1)
         pygame.draw.polygon(window, colour, Rotate_clockwise([[self.pos[0] + 10, self.pos[1] - 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 15, self.pos[1]]], self.pos, self.direction))
         pygame.draw.polygon(window, (0, 0, 0), Rotate_clockwise([[self.pos[0] + 10, self.pos[1] - 5], [self.pos[0] + 10, self.pos[1] + 5], [self.pos[0] + 15, self.pos[1]]], self.pos, self.direction), 1)
+
+class Flak:
+    def __init__(self, pos, direction, speed, explosion_damage, num_bullets, team):
+        self.pos = pos
+        self.direction = direction
+        self.speed = speed * difficulty
+        self.explosion_damage = explosion_damage
+        self.num_bullets = num_bullets
+        self.team = team
+        self.explode = False
+        self.explode_timer = 0
+        self.health = 10 * difficulty
+    def move(self):
+        self.pos[0] += cos(self.direction) * self.speed
+        self.pos[1] += sin(self.direction) * self.speed
+    def display(self):
+        if self.team == "red":
+            colour = (255, 0, 0)
+        elif self.team == "green":
+            colour = (0, 255, 0)
+        elif self.team == "blue":
+            colour = (0, 0, 255)
+        pygame.draw.line(window, (0, 0, 0), self.pos, [self.pos[0] - cos(self.direction) * 25, self.pos[1] - sin(self.direction) * 25], 10)
+        pygame.draw.circle(window, (0, 0, 0), [int(self.pos[0] - cos(self.direction) * 25), int(self.pos[1] - sin(self.direction) * 25)], 5)
+        pygame.draw.circle(window, (0, 0, 0), [int(self.pos[0]), int(self.pos[1])], 5)
+        pygame.draw.line(window, colour, [self.pos[0] - cos(self.direction) * 5, self.pos[1] - sin(self.direction) * 5], [self.pos[0] - cos(self.direction) * 20, self.pos[1] - sin(self.direction) * 20], 5)
 
 #---------------------------------Shop Items---------------------------------
 #Trip mine
@@ -1087,7 +1218,7 @@ regular_font = pygame.font.SysFont("Courier New", 50)
 large_font = pygame.font.SysFont("Courier New", 150)
 
     #Cheats
-infinite_money = god_mode = music_mix = False
+infinite_money = god_mode = music_mix = infinite_items = False
 vision = "normal"
 
     #Other
@@ -1104,12 +1235,15 @@ tetris_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sou
 william_tell_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\William Tell Overture Finale.ogg")
 lozoot_gerudo_introduction_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\LoZOoT Gerudo Valley Introduction.ogg")
 lozoot_gerudo_loop_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\LoZOoT Gerudo Valley Loop.ogg")
-all_music = [mario_loop_music, star_wars_music, tetris_music, william_tell_music, lozoot_gerudo_loop_music]
+lozoot_mini_boss_introduction_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\LoZOoT Mini Boss Introduction.ogg")
+lozoot_mini_boss_loop_music = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\LoZOoT Mini Boss Loop.ogg")
+all_music = [mario_loop_music, star_wars_music, tetris_music, william_tell_music, lozoot_gerudo_loop_music, lozoot_mini_boss_loop_music]
 music_channel = pygame.mixer.Channel(0)
 
 mario_death_sound = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\Mario Theme Song Death.ogg")
 explosion_sound = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\Explosion.ogg")
 gunshot_sound = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\Gunshot.ogg")
+gunshot_rapid_sound = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\Gunshot 2.ogg")
 mine_beep = pygame.mixer.Sound("C:\\Users\\2738490516\\Documents\\Python\\Sounds\\Mine Beep.ogg")
 
     #Keys
@@ -1143,6 +1277,7 @@ while True:
         player_speed = 0
         player_health = 100
         player_maxhealth = 100
+        player_health_regeneration = 0
 
     #Player hand - used to determine where player holds weapons
         hand_direction = pi / 2
@@ -1177,9 +1312,12 @@ while True:
             music_channel.play(mario_introduction_music)
         elif music == lozoot_gerudo_loop_music:
             music_channel.play(lozoot_gerudo_introduction_music)
+        elif music == lozoot_mini_boss_loop_music:
+            music_channel.play(lozoot_mini_boss_introduction_music)
         else:
             music_channel.play(music)
         music_channel.set_volume(music_volume)
+
         buttons = [Button([width / 2 - 250, height / 3, 500, 75], "Play game", regular_font), Button([0, 0, 100, 50], "Quit", small_font), Button([width / 2 - 250, height / 3 + 100, 500, 75], "Cheats", regular_font), Button([width / 2 - 250, height / 3 + 200, 500, 75], "Settings", regular_font)]
         selected_button = None
         mouse_down = False
@@ -1219,7 +1357,7 @@ while True:
                             buttons[2].pressed = False
                             if selected_button != None:
                                 if selected_button == buttons[2]:
-                                    infinite_money, god_mode, music_mix, vision, wave = Cheats()
+                                    infinite_money, god_mode, music_mix, infinite_items, vision, wave = Cheats()
                         elif buttons[3].rect[0] <= mouse_pos[0] <= buttons[3].rect[0] + buttons[3].rect[2] and buttons[3].rect[1] <= mouse_pos[1] <= buttons[3].rect[1] + buttons[3].rect[3]:
                             buttons[3].pressed = False
                             if selected_button != None:
@@ -1277,6 +1415,8 @@ while True:
                                     difficulty = 0.5
                                     money = 100
                                     action = "Play game"
+                                    boss_fight = False
+                                    boss_enemies = []
                         elif buttons[1].rect[0] <= mouse_pos[0] <= buttons[1].rect[0] + buttons[1].rect[2] and buttons[1].rect[1] <= mouse_pos[1] <= buttons[1].rect[1] + buttons[1].rect[3]:
                             buttons[1].pressed = False
                             if selected_button != None:
@@ -1284,6 +1424,8 @@ while True:
                                     difficulty = 0.75
                                     money = 100
                                     action = "Play game"
+                                    boss_fight = False
+                                    boss_enemies = []
                         elif buttons[2].rect[0] <= mouse_pos[0] <= buttons[2].rect[0] + buttons[2].rect[2] and buttons[2].rect[1] <= mouse_pos[1] <= buttons[2].rect[1] + buttons[2].rect[3]:
                             buttons[2].pressed = False
                             if selected_button != None:
@@ -1291,6 +1433,8 @@ while True:
                                     difficulty = 1
                                     money = 100
                                     action = "Play game"
+                                    boss_fight = False
+                                    boss_enemies = []
                         elif buttons[3].rect[0] <= mouse_pos[0] <= buttons[3].rect[0] + buttons[3].rect[2] and buttons[3].rect[1] <= mouse_pos[1] <= buttons[3].rect[1] + buttons[3].rect[3]:
                             buttons[3].pressed = False
                             if selected_button != None:
@@ -1298,6 +1442,8 @@ while True:
                                     difficulty = 2
                                     money = 100
                                     action = "Play game"
+                                    boss_fight = False
+                                    boss_enemies = []
                         elif buttons[4].rect[0] <= mouse_pos[0] <= buttons[4].rect[0] + buttons[4].rect[2] and buttons[4].rect[1] <= mouse_pos[1] <= buttons[4].rect[1] + buttons[4].rect[3]:
                             buttons[4].pressed = False
                             if selected_button != None:
@@ -1323,12 +1469,15 @@ while True:
 #Reset all wave settings
         timer = -600
         enemy_add_timer = 0
+
         bullets = []
         lasers = []
         pd_lasers = []
         deflects = []
         rockets = []
+        flaks = []
         explosions = []
+        air_strikes = []
 
     #enemies is the list of enemies on the screen, and remaining_enemies is the list of enemies that will be added later in the wave
         enemies = []
@@ -1338,40 +1487,59 @@ while True:
         turrets = []
 
         potential_targets = ["player", enemies, turrets, [bullets, rockets]]
-#Turns on music if enabled
+#Randomizes music if cheat is on
         if music_mix == True:
             music = random.choice(all_music)
         else:
-            music = star_wars_music
-        if music == mario_loop_music:
-            music_channel.play(mario_introduction_music)
-        elif music == lozoot_gerudo_loop_music:
-            music_channel.play(lozoot_gerudo_introduction_music)
-        else:
-            music_channel.play(music, -1)
+            if boss_fight == True:
+                music = lozoot_mini_boss_loop_music
+            else:
+                music = star_wars_music
+
+#Only start the music if it is not a boss fight so that there would be added tension before boss fights
+        if boss_fight == False:
+            if music == mario_loop_music:
+                music_channel.play(mario_introduction_music)
+            elif music == lozoot_gerudo_loop_music:
+                music_channel.play(lozoot_gerudo_introduction_music)
+            elif music == lozoot_mini_boss_loop_music:
+                music_channel.play(lozoot_mini_boss_introduction_music)
+            else:
+                music_channel.play(music, -1)
         music_channel.set_volume(music_volume)
 
 #Adds enemies to the list of remaining enemies
-        for i in range(wave + 4):
-            remaining_enemies.append(Rifleman([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), 0, "red"))
-        for i in range(wave // 2):
-            remaining_enemies.append(Machine_gunner([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), 0, "red"))
-        for i in range(wave // 3):
-            remaining_enemies.append(Laser_sniper([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), "red"))
-        for i in range(wave // 4):
-            remaining_enemies.append(Laser_gunner([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), "red"))
-        for i in range(wave // 5):
-            remaining_enemies.append(Rocket_launcher([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), "red"))
+        if boss_fight == False:
+            for i in range(wave + 4):
+                remaining_enemies.append(Rifleman([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), "red"))
+            for i in range(wave // 2):
+                remaining_enemies.append(Machine_gunner([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), "red"))
+            for i in range(wave // 3):
+                remaining_enemies.append(Laser_sniper([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), "red"))
+            for i in range(wave // 4):
+                remaining_enemies.append(Laser_gunner([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), "red"))
+            for i in range(wave // 5):
+                remaining_enemies.append(Rocket_launcher([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 100 * (wave // 10 * 0.1 + 1), 100 * (wave // 10 * 0.1 + 1), "red"))
+            if wave % 10 == 0:
+                for i in range((wave + 10) // 20):
+                    boss_enemies.append(Helicopter([random.randint(25, width - 25), random.randint(25, height - 25)], 0, 1000, 1000, "red"))
+        else:
+            remaining_enemies.extend(boss_enemies)
+            boss_enemies = []
 
         while action == "Play game":
             window.fill((255, 255, 255))
             mouse_pos = pygame.mouse.get_pos()
-            if music == mario_loop_music and music_channel.get_busy() == False:
-                music_channel.play(mario_loop_music, -1)
-                music_channel.set_volume(music_volume)
-            if music == lozoot_gerudo_loop_music and music_channel.get_busy() == False:
-                music_channel.play(lozoot_gerudo_loop_music, -1)
-                music_channel.set_volume(music_volume)
+            if boss_fight == False or (boss_fight == True and remaining_enemies == []):
+                if music == mario_loop_music and music_channel.get_busy() == False:
+                    music_channel.play(mario_loop_music, -1)
+                    music_channel.set_volume(music_volume)
+                if music == lozoot_gerudo_loop_music and music_channel.get_busy() == False:
+                    music_channel.play(lozoot_gerudo_loop_music, -1)
+                    music_channel.set_volume(music_volume)
+                if music == lozoot_mini_boss_loop_music and music_channel.get_busy() == False:
+                    music_channel.play(lozoot_mini_boss_loop_music, -1)
+                    music_channel.set_volume(music_volume)
             timer += difficulty
             enemy_add_timer += difficulty
 
@@ -1409,19 +1577,22 @@ while True:
                         player_weapon = 1
                     if event.key == weapon_2_key:
                         player_weapon = 2
-                    if event.key == pause_game_key:
+                    if event.key == pause_game_key or event.key == 27:
                         action = "Pause"
-                    if event.key == mine_key and trip_mines > 0:
+                    if event.key == mine_key and (trip_mines > 0 or infinite_items == True):
                         mines.append(Mine([player_pos[0], player_pos[1]], player_team))
-                        trip_mines -= 1
-                    if event.key == turret_key and pd_turrets > 0:
+                        if infinite_items == False:
+                            trip_mines -= 1
+                    if event.key == turret_key and (pd_turrets > 0 or infinite_items == True):
                         turrets.append(Point_defence([player_pos[0], player_pos[1]], player_team))
-                        pd_turrets -= 1
-                    if event.key == health_pack_key and health_packs > 0:
+                        if infinite_items == False:
+                            pd_turrets -= 1
+                    if event.key == health_pack_key and (health_packs > 0 or infinite_items == True):
                         player_health += 50
                         if player_health > player_maxhealth:
                             player_health = player_maxhealth
-                        health_packs -= 1
+                        if infinite_items == True:
+                            health_packs -= 1
                 if event.type == pygame.KEYUP:
                     if event.key == up_key:
                         up = False
@@ -1457,7 +1628,7 @@ while True:
                     if pause_result == "Menu":
                         action = "Menu"
                     if pause_result == "Cheats":
-                        infinite_money, god_mode, music_mix, vision, wave = Cheats()
+                        infinite_money, god_mode, music_mix, infinite_items, vision, wave = Cheats()
                         action = "Pause"
                     if pause_result == "Settings":
                         all_keys, music_volume, sound_effects = Settings()
@@ -1550,13 +1721,23 @@ while True:
                     while (enemy.pos[1] - height / 2 > tan(spawn_line_direction) * (enemy.pos[0] - width / 2) and player_pos[1] - height / 2 > tan(spawn_line_direction) * (player_pos[0] - width / 2)) or (enemy.pos[1] - height / 2 < tan(spawn_line_direction) * (enemy.pos[0] - width / 2) and player_pos[1] - height / 2 < tan(spawn_line_direction) * (player_pos[0] - width / 2)):
                         enemy.pos = [random.randint(25, width - 25), random.randint(25, height - 25)]
                     enemies.append(enemy)
+    #If the enemies are bosses, start boss fight music
+                if boss_fight == True and music_channel.get_busy() == False:
+                    if music == mario_loop_music:
+                        music_channel.play(mario_introduction_music)
+                    elif music == lozoot_gerudo_loop_music:
+                        music_channel.play(lozoot_gerudo_introduction_music)
+                    elif music == lozoot_mini_boss_loop_music:
+                        music_channel.play(lozoot_mini_boss_introduction_music)
+                    else:
+                        music_channel.play(music, -1)
                 enemy_add_timer = 0
                 if wave == 0:
                     wave += wave_offset
 
 #Enemy movement, collision detection, and property updates - lasers are not included because some dissapear on the same frame that they are created on
             for enemy in enemies[:]:
-                if Do_line_and_circle_intersect([enemy.pos, 25], player_hand, lightsaber_end, False) != False and player_weapon == 1:
+                if Do_line_and_circle_intersect([enemy.pos, 25], player_hand, lightsaber_end, False) != False and player_weapon == 1 and type(enemy) != Helicopter:
                     if god_mode == True and enemy in enemies:
                         if type(enemy) == Rifleman:
                             money += 10
@@ -1592,9 +1773,17 @@ while True:
                     if type(enemy) == Rocket_launcher:
                         money += 59
                         score += 590 * ((wave + 10) // 10)
+                    if type(enemy) == Helicopter:
+                        money += 600
+                        score += 6000 * ((wave + 10) // 10)
                     enemies.remove(enemy)
                 if enemy.team == "red":
                     enemy.move_shoot([player_pos[0], player_pos[1]])
+
+#Regenerate player health
+            player_health += player_health_regeneration / 60
+            if player_health > player_maxhealth:
+                player_health = player_maxhealth
 
 #Bullet movement, deflection, collision detection and property updates
             for bullet in bullets[:]:
@@ -1612,7 +1801,6 @@ while True:
                 if bullet.health <= 0 and bullet in bullets:
                     bullets.remove(bullet)
                     continue
-                    
 
                 direction_from_last_pos = atan2(bullet.last_pos[1] - bullet.pos[1], bullet.last_pos[0] - bullet.pos[0])
                 bullet_edge_points = Do_line_and_circle_intersect([bullet.pos, 5], bullet.pos, [bullet.pos[0] + cos(direction_from_last_pos + pi / 2), bullet.pos[1] + sin(direction_from_last_pos + pi / 2)], True)
@@ -1776,7 +1964,7 @@ while True:
 
                 for point_number, point in enumerate(rocket.perimeter):
                     rocket_touching_player = False
-                    if point[0] <= 100 or point[0] >= width or point[1] <= 100 or point[1] >= height:
+                    if point[0] <= 0 or point[0] >= width or point[1] <= 0 or point[1] >= height:
                         if rocket in rockets:
                             rockets.remove(rocket)
                             break
@@ -1823,7 +2011,33 @@ while True:
                         rockets.remove(rocket)
                     if rocket_touching_player == True:
                         player_health -= rocket.damage
-                    explosions.append(Explosion(rocket.pos, 150, 25))
+                    explosions.append(Explosion(rocket.pos, 150, rocket.explosion_damage))
+
+            for flak in flaks[:]:
+                flak.move()
+                if not 0 < flak.pos[0] < width or not 0 < flak.pos[1] < height:
+                    if flak in flaks:
+                        flaks.remove(flak)
+                        continue
+                if player_team != flak.team:
+                    if hypot(player_pos[0] - flak.pos[0], player_pos[1] - flak.pos[1]) <= 150:
+                        flak.explode = True
+                for enemy in enemies:
+                    if enemy.team != flak.team:
+                        if hypot(enemy.pos[0] - flak.pos[0], enemy.pos[1] - flak.pos[1]) <= 150:
+                            flak.explode = True
+                for rocket in rockets:
+                    if rocket.team != flak.team:
+                        if hypot(rocket.pos[0] - flak.pos[0], rocket.pos[1] - flak.pos[1]) <= 150:
+                            flak.explode = True
+                if flak.explode == True:
+                    flak.explode_timer += difficulty
+                    if flak.explode_timer >= 10:
+                        for i in range(flak.num_bullets):
+                            bullets.append(Bullet([flak.pos[0], flak.pos[1]], random.uniform(-pi, pi), 15, 20, flak.team))
+                        explosions.append(Explosion(flak.pos, 30, flak.explosion_damage))
+                        if flak in flaks:
+                            flaks.remove(flak)
 
 #Mine triggers
             for mine in mines[:]:
@@ -1831,10 +2045,10 @@ while True:
                 if hypot(mine.pos[0] - player_pos[0], mine.pos[1] - player_pos[1]) <= 100 and mine.timer >= 0 and mine.team != player_team:
                     mine.explode = True
                 for enemy in enemies:
-                    if hypot(mine.pos[0] - enemy.pos[0], mine.pos[1] - enemy.pos[1]) <= 100 and mine.timer >= 0 and mine.team != enemy.team:
+                    if hypot(mine.pos[0] - enemy.pos[0], mine.pos[1] - enemy.pos[1]) <= 100 and mine.timer >= 0 and mine.team != enemy.team and type(enemy) != Helicopter:
                         mine.explode = True
                 if mine.timer >= 30:
-                    explosions.append(Explosion(mine.pos, 150, 25))
+                    explosions.append(Explosion(mine.pos, 150, 40))
                     mines.remove(mine)
 
 #Point defence turrets
@@ -1847,21 +2061,21 @@ while True:
                             closest_target = "player"
                         for enemy_number, enemy in enumerate(enemies):
                             if enemy.team != turret.team:
-                                if enemy_number == 0:
+                                if enemy_number == 0 or closest_target == None:
                                     closest_target = enemy
                                 else:
                                     if hypot(closest_target.pos[0] - turret.pos[0], closest_target.pos[1] - turret.pos[1]) >= hypot(enemy.pos[0] - turret.pos[0], enemy.pos[1] - turret.pos[1]):
                                         closest_target = enemy
                         for bullet_number, bullet in enumerate(bullets):
                             if bullet.team != turret.team:
-                                if bullet_number == 0:
+                                if bullet_number == 0 or closest_target == None:
                                     closest_target = bullet
                                 else:
                                     if hypot(closest_target.pos[0] - turret.pos[0], closest_target.pos[1] - turret.pos[1]) >= hypot(bullet.pos[0] - turret.pos[0], bullet.pos[1] - turret.pos[1]):
                                         closest_target = bullet
                         for rocket_number, rocket in enumerate(rockets):
                             if rocket.team != turret.team:
-                                if rocket_number == 0:
+                                if rocket_number == 0 or closest_target == None:
                                     closest_target = rocket
                                 else:
                                     if hypot(closest_target.pos[0] - turret.pos[0], closest_target.pos[1] - turret.pos[1]) >= hypot(rocket.pos[0] - turret.pos[0], rocket.pos[1] - turret.pos[1]):
@@ -2051,8 +2265,14 @@ while True:
                             for intersection in rocket_intersections:
                                 if closest_intersection == intersection[0]:
                                     intersection[1].health -= laser.damage
-                                    breake
+                                    break
                         laser.end_pos = closest_intersection
+
+            for air_strike in air_strikes[:]:
+                if timer >= air_strike[0] + 300:
+                    explosions.append(Explosion(air_strike[1], 300, 150))
+                    if air_strike in air_strikes:
+                        air_strikes.remove(air_strike)
 
 #Explosion collision detection and property updates
             for explosion in explosions[:]:
@@ -2076,7 +2296,11 @@ while True:
                     explosions.remove(explosion)
 
 #-------------------------------Draw everything-------------------------------
-#Draw rockets
+#Draw trip mines
+            for mine in mines:
+                mine.display()
+
+#Draw bullets
             for bullet in bullets:
                 bullet.display()
 
@@ -2108,11 +2332,13 @@ while True:
                 laser.display()
                 deflects.remove(laser)
 
-            for mine in mines:
-                mine.display()
-
+#Draw turrets
             for turret in turrets:
                 turret.display()
+
+#Draw flak rounds
+            for flak in flaks:
+                flak.display()
 
 #Draw player, health, hand, and weapon
             if god_mode == True:
@@ -2142,17 +2368,24 @@ while True:
                 Draw_text(window, (0, 0, 0), small_font, [width / 2, 25], "Wave begins in: " + str(round(-timer / 60, 2)) + "s")
             else:
                 Draw_text(window, (0, 0, 0), small_font, [width / 2, 25], str(round(timer / 60, 2)) + "s")
-                Draw_text(window, (0, 0, 0), small_font, [75, 25], "Wave: " + str(wave))
-                Draw_text(window, (0, 0, 0), small_font, [175, 50], "Remaining enemies: " + str(len(remaining_enemies) + len(enemies)))
+                Draw_text(window, (0, 0, 0), small_font, [150, 25], "Current Wave: " + str(wave))
+                Draw_text(window, (0, 0, 0), small_font, [150, 50], "Enemies Left: " + str(len(remaining_enemies) + len(enemies)))
 
             Draw_text(window, (0, 0, 0), small_font, [width - 100, 25], "Score: " + str(score))
             Draw_text(window, (0, 0, 0), small_font, [width - 100, 50], "Money: " + str(money))
 
 #Check if all enemies are defeated
             if enemies == [] and remaining_enemies == []:
-                action = "Shop"
-                music_channel.stop()
-                total_time += timer
+                if boss_enemies == []:
+                    boss_fight = False
+                    action = "Wave Clear"
+                    music_channel.stop()
+                    total_time += timer
+                else:
+                    boss_fight = True
+                    action = "Wave Clear"
+                    music_channel.stop()
+                    total_time += timer
 
 #Check if player is dead
             if player_health <= 0:
@@ -2161,6 +2394,38 @@ while True:
                 music_channel.stop()
                 total_time += timer
                 break
+
+            pygame.display.flip()
+            clock.tick(FPS)
+
+#------------------------------------------------------------------------Wave Clear------------------------------------------------------------------------
+    if action == "Wave Clear":
+        timer = 0
+        while action == "Wave Clear":
+            window.fill((255, 255, 255))
+            mouse_pos = pygame.mouse.get_pos()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
+            timer += 1
+
+            if boss_fight == False:
+                Draw_text(window, (0, 0, 0), large_font, [width / 2, height / 2], "Wave Clear!")
+                if timer >= 180:
+                    action = "Shop"
+            else:
+                if timer <= 180:
+                    Draw_text(window, (0, 0, 0), large_font, [width / 2, height / 2], "Wave Clear!")
+                if timer >= 360:
+                    player_health = player_maxhealth
+                    action = "Play game"
+                elif timer >= 180:
+                    Draw_text(window, (255, 0, 0), large_font, [width / 2, height / 2], "Boss Fight!")
+                elif timer >= 120:
+                    pygame.draw.line(window, (255, 0, 0), [100, 400], [width - 100, height - 400], 25)
+                    pygame.draw.line(window, (255, 0, 0), [width - 100, 400], [100, height - 400], 25)
 
             pygame.display.flip()
             clock.tick(FPS)
@@ -2199,6 +2464,9 @@ while True:
 
         for i in range(0, 90 - shield_angle, 5):
             potential_items.append("+Shield angle")
+        
+        for i in range(0, 10 - player_health_regeneration):
+            potential_items.append("+Health regen")
 
         for i in range(12):
             potential_items.append("Health pack")
@@ -2252,6 +2520,7 @@ while True:
                             if selected_button != None:
                                 if selected_button == buttons[0]:
                                     player_health = player_maxhealth
+                                    boss_fight = False
                                     action = "Play game"
                                     wave += 1
                         if buttons[1].rect[0] <= mouse_pos[0] <= buttons[1].rect[0] + buttons[1].rect[2] and buttons[1].rect[1] <= mouse_pos[1] <= buttons[1].rect[1] + buttons[1].rect[3]:
@@ -2271,6 +2540,8 @@ while True:
                                             lightsaber_damage += 1
                                         if buttons[selected_item].text == "+Shield angle":
                                             shield_angle += 5
+                                        if buttons[selected_item].text == "+Health regen":
+                                            player_health_regeneration += 1
                                         if buttons[selected_item].text == "Health pack":
                                             health_packs += 1
                                         if buttons[selected_item].text == "Trip mine":
@@ -2311,6 +2582,13 @@ while True:
                     else:
                         colour = (255, 0, 0)
                     Draw_text(window, colour, small_font, [width / 2, 2 * height / 3], "Increases the angle of the shield by 10 degrees.")
+                if buttons[selected_item].text == "+Health regen":
+                    item_cost = 25
+                    if money >= item_cost or infinite_money == True:
+                        colour = (0, 128, 0)
+                    else:
+                        colour = (255, 0, 0)
+                    Draw_text(window, colour, small_font, [width / 2, 2 * height / 3], "Allows the player to regenerate 1 more health per second.")
                 if buttons[selected_item].text == "Health pack":
                     item_cost = 20
                     if money >= item_cost or infinite_money == True:

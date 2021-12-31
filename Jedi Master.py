@@ -1,3 +1,6 @@
+# Note: Below is the June 28, 2019 version of my summative.  It is an updated version of what I submitted, not the actual submission.  Changes include
+# the addition of classes and code for trip mines (Mine), point defence lasers and turrets (PD_laser and Point_defence), flak projectiles (Flak), the
+# helicopter boss enemy (Helicopter), and maybe a few other things that I don't remember.
 #----------------------------------------------------------------------------------------------------------------------------------------------------------#
 #Herman Liao                                                                                                                                               #
 #ICS2O1-02                                                                                                                                                 #
